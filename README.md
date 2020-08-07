@@ -2,7 +2,7 @@
 
 Exercícios em ES6+
 
-Exercícios: Módulo 01
+## Exercícios: Módulo 01
 
 1º exercício
 
