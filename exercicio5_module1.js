@@ -11,7 +11,6 @@ console.log(soma(1, 2, 3, 4, 5, 6)); // 21
 console.log(soma(1, 2)); // 3
 
 // 5.2 Spread
-
 const usuario = {
     nome: 'Diego',
     idade: 23,
