@@ -1,12 +1,88 @@
-import axios from 'axios';
+import api from './api';
 
-const buscaUsuario = async user => {
-    try {
-        const response = await axios.get(`https://api.github.com/users/${user}`);
-        console.log(response.data);
-    } catch (err) {
-        console.log('Usuário não existe');
+class App {
+    constructor() {
+        this.repositories = [];
+
+        this.formEl = document.getElementById('repo-form');
+        this.inputEl = document.querySelector('input[name=repository]');
+        this.listEl = document.getElementById('repo-list');
+
+        this.registerHandles();
+    }
+
+    registerHandles() {
+        this.formEl.onsubmit = event => this.addRepository(event);
+    }
+
+    setLoading(loading = true) {
+        if (loading === true) {
+            let loadingEl = document.createElement('span');
+            loadingEl.appendChild(document.createTextNode('Carregando'));
+            loadingEl.setAttribute('id', 'loading');
+
+            this.formEl.appendChild(loadingEl);
+        } else {
+            document.getElementById('loading').remove();
+        }
+    }
+
+    async addRepository(event) {
+        event.preventDefault();
+
+        const repoInput = this.inputEl.value;
+
+        if (repoInput.length === 0) return;
+
+        this.setLoading();
+
+        try {
+            const response = await api.get(`/repos/${repoInput}`);
+            const { name, description, html_url, owner: { avatar_url } } = response.data;
+
+            this.repositories.push({
+                name,
+                description,
+                avatar_url,
+                html_url,
+            });
+
+            this.inputEl.value = '';
+            this.render();
+        } catch (err) {
+            alert('Este repositório não existe!');
+            this.inputEl.value = '';
+        }
+
+        this.setLoading(false);
+    }
+
+    render() {
+        this.listEl.innerText = '';
+
+        this.repositories.forEach(repo => {
+            let descriptionEl = document.createElement('p');
+            let titleEl = document.createElement('strong');
+            let listItemEl = document.createElement('li');
+            let imgEl = document.createElement('img');
+            let linkEl = document.createElement('a');
+
+            linkEl.setAttribute('target', '_blank');
+            linkEl.setAttribute('href', repo.html_url);
+            imgEl.setAttribute('src', repo.avatar_url);
+
+            linkEl.appendChild(document.createTextNode('Acessar'));
+            titleEl.appendChild(document.createTextNode(repo.name));
+            descriptionEl.appendChild(document.createTextNode(repo.description));
+
+            listItemEl.appendChild(imgEl);
+            listItemEl.appendChild(titleEl);
+            listItemEl.appendChild(descriptionEl); 
+            listItemEl.appendChild(linkEl);
+
+            this.listEl.appendChild(listItemEl);
+        });
     }
 }
 
-buscaUsuario('diego3g');
+new App();
